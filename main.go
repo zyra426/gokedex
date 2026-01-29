@@ -1,5 +1,16 @@
 package main
 
+import (
+	"time"
+
+	"github.com/zyra426/gokedex/internal/gokeapi"
+)
+
 func main() {
-	startRepl()
+	gokeClient := gokeapi.NewClient(5 * time.Second)
+	cfg := &config{
+		pokeapiClient: gokeClient,
+	}
+
+	startRepl(cfg)
 }

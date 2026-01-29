@@ -1,33 +1,41 @@
 package main
 
 import (
+	"errors"
 	"fmt"
-
-	"github.com/zyra426/gokedex/internal/gokeapi"
 )
 
-func commandMap(cfg *gokeapi.Config) error {
-	if cfg.Next != "" {
-		locationAreas, err := gokeapi.GetMaps(cfg.Next)
-		if err != nil {
-			return err
-		}
-
-		for _, la := range locationAreas.Results {
-			fmt.Println(la.Name)
-		}
-
-		return nil
-	}
-
-	locationAreas, err := gokeapi.GetMaps(gokeapi.BaseURL)
+func commandMap(cfg *config) error {
+	locationsResp, err := cfg.pokeapiClient.ListLocations(cfg.nextURL)
 	if err != nil {
 		return err
 	}
 
-	for _, la := range locationAreas.Results {
+	cfg.nextURL = &locationsResp.Next
+	cfg.prevURL = &locationsResp.Previous
+
+	for _, la := range locationsResp.Results {
 		fmt.Println(la.Name)
 	}
 
+	return nil
+}
+
+func commandMapBack(cfg *config) error {
+	if cfg.prevURL == nil {
+		return errors.New("you're on the first page")
+	}
+
+	locationsResp, err := cfg.pokeapiClient.ListLocations(cfg.prevURL)
+	if err != nil {
+		return err
+	}
+
+	cfg.nextURL = &locationsResp.Next
+	cfg.prevURL = &locationsResp.Previous
+
+	for _, la := range locationsResp.Results {
+		fmt.Println(la.Name)
+	}
 	return nil
 }

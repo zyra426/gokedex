@@ -9,9 +9,14 @@ import (
 	"github.com/zyra426/gokedex/internal/gokeapi"
 )
 
-func startRepl() {
+type config struct {
+	pokeapiClient gokeapi.Client
+	nextURL       *string
+	prevURL       *string
+}
+
+func startRepl(cfg *config) {
 	reader := bufio.NewScanner(os.Stdin)
-	var cfg gokeapi.Config
 	for {
 		fmt.Print("Pokedex > ")
 		reader.Scan()
@@ -25,7 +30,7 @@ func startRepl() {
 			continue
 		}
 
-		err := cliComm.callback(&cfg)
+		err := cliComm.callback(cfg)
 		if err != nil {
 			fmt.Println(err)
 		}
@@ -42,7 +47,7 @@ func cleanInput(text string) []string {
 type cliCommand struct {
 	name        string
 	description string
-	callback    func(*gokeapi.Config) error
+	callback    func(*config) error
 }
 
 func supportedCommands() map[string]cliCommand {
@@ -51,11 +56,6 @@ func supportedCommands() map[string]cliCommand {
 			name:        "help",
 			description: "Displays a help message",
 			callback:    commandHelp,
-		},
-		"exit": {
-			name:        "exit",
-			description: "Exit the Pokedex",
-			callback:    commandExit,
 		},
 		"map": {
 			name:        "map",
@@ -66,6 +66,11 @@ func supportedCommands() map[string]cliCommand {
 			name:        "mapb",
 			description: "Displays previous list of maps",
 			callback:    commandMapBack,
+		},
+		"exit": {
+			name:        "exit",
+			description: "Exit the Pokedex",
+			callback:    commandExit,
 		},
 	}
 }

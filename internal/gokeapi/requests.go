@@ -2,14 +2,11 @@ package gokeapi
 
 import (
 	"encoding/json"
-	"fmt"
 	"io"
 	"net/http"
 )
 
-const BaseURL = "https://pokeapi.co/api/v2/location-area/"
-
-type Config struct {
+type LocationResp struct {
 	Count    int      `json:"count"`
 	Next     string   `json:"next"`
 	Previous string   `json:"previous"`
@@ -21,22 +18,32 @@ type Result struct {
 	URL  string
 }
 
-func GetMaps(url string) (Config, error) {
-	var locationAreas Config
-	res, err := http.Get(url)
+func (c *Client) ListLocations(pageURL *string) (LocationResp, error) {
+	url := baseURL + "/location-area"
+	if pageURL != nil {
+		url = *pageURL
+	}
+
+	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
-		return locationAreas, fmt.Errorf("error fetching data: %w", err)
+		return LocationResp{}, err
+	}
+
+	res, err := c.httpClient.Do(req)
+	if err != nil {
+		return LocationResp{}, err
 	}
 	defer res.Body.Close()
 
 	data, err := io.ReadAll(res.Body)
 	if err != nil {
-		return locationAreas, fmt.Errorf("error reading body: %w", err)
+		return LocationResp{}, err
 	}
 
-	if err := json.Unmarshal(data, &locationAreas); err != nil {
-		return locationAreas, fmt.Errorf("error unmarshalling data: %w", err)
+	locationsResp := LocationResp{}
+	if err := json.Unmarshal(data, &locationsResp); err != nil {
+		return LocationResp{}, err
 	}
 
-	return locationAreas, nil
+	return locationsResp, nil
 }
