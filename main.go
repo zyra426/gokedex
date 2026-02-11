@@ -7,7 +7,7 @@ import (
 )
 
 func main() {
-	gokeClient := gokeapi.NewClient(5 * time.Second)
+	gokeClient := gokeapi.NewClient(5*time.Second, time.Minute*5)
 	cfg := &config{
 		pokeapiClient: gokeClient,
 	}

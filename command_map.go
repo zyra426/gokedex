@@ -11,8 +11,8 @@ func commandMap(cfg *config) error {
 		return err
 	}
 
-	cfg.nextURL = &locationsResp.Next
-	cfg.prevURL = &locationsResp.Previous
+	cfg.nextURL = locationsResp.Next
+	cfg.prevURL = locationsResp.Previous
 
 	for _, la := range locationsResp.Results {
 		fmt.Println(la.Name)
@@ -31,8 +31,8 @@ func commandMapBack(cfg *config) error {
 		return err
 	}
 
-	cfg.nextURL = &locationsResp.Next
-	cfg.prevURL = &locationsResp.Previous
+	cfg.nextURL = locationsResp.Next
+	cfg.prevURL = locationsResp.Previous
 
 	for _, la := range locationsResp.Results {
 		fmt.Println(la.Name)
