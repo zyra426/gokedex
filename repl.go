@@ -21,8 +21,15 @@ func startRepl(cfg *config) {
 		fmt.Print("Pokedex > ")
 		reader.Scan()
 		text := cleanInput(reader.Text())
+		if len(text) == 0 {
+			continue
+		}
 
 		command := text[0]
+		options := []string{}
+		if len(text) > 1 {
+			options = text[1:]
+		}
 
 		cliComm, exists := supportedCommands()[command]
 		if !exists {
@@ -30,7 +37,7 @@ func startRepl(cfg *config) {
 			continue
 		}
 
-		err := cliComm.callback(cfg)
+		err := cliComm.callback(cfg, options...)
 		if err != nil {
 			fmt.Println(err)
 		}
@@ -47,7 +54,7 @@ func cleanInput(text string) []string {
 type cliCommand struct {
 	name        string
 	description string
-	callback    func(*config) error
+	callback    func(*config, ...string) error
 }
 
 func supportedCommands() map[string]cliCommand {
@@ -66,6 +73,11 @@ func supportedCommands() map[string]cliCommand {
 			name:        "mapb",
 			description: "Displays previous list of maps",
 			callback:    commandMapBack,
+		},
+		"explore": {
+			name:        "explore",
+			description: "Displays list of pokemon in the requested area, e.g. explore <area-name>",
+			callback:    commandExplore,
 		},
 		"exit": {
 			name:        "exit",
